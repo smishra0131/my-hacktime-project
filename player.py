@@ -15,7 +15,7 @@ class Player:
     def display_stats(self):
         print(f"Player name: {self.name}")
         print(f"Amount of money you have: {self.money}")
-        print(f"Height in inches of {self.name}: {self.height} inches")
+        print(f"Height in inches of {self.name}: {self.height}")
         print(f"Speed rating of {self.name}: {self.speed}")
         print(f"Stamina rating of {self.name}: {self.stamina}")
         print(f"Strength rating of {self.name}: {self.strength}")
@@ -30,40 +30,28 @@ class Player:
         else:
             return False
 
-    def purchase_upgrade(self, choice):
-        upgrades = {
-            1: ("height", 50, 1),
-            2: ("speed", 75, 5),
-            3: ("stamina", 75, 5),
-            4: ("strength", 75, 5),
-            5: ("ball_handling", 75, 5),
-            6: ("shooting", 100, 5),
-            7: ("rebounding", 75, 5),
-            8: ("defending", 75, 5)
-        }
+    def purchase_upgrade(self, stat, price, increase):
+        if not self.can_afford(price):
+            print("Not enough money to purchase this upgrade.")
+            print(f"You currently have ${self.money}. You need ${price - self.money} more.")
+            return False
 
-        if choice not in upgrades:
-            print("Invalid choice")
-            return
+        if stat == "height" and getattr(self, stat) + increase > 84:
+            print("Maximum height reached.")
+            return False
+        
+        if stat != "height" and getattr(self, stat) + increase > 100:
+            print("Maximum rating reached.")
+            return False
 
-        stat, price, increase = upgrades[choice]
-        if self.can_afford(price):
-            
-            if stat == "height" and getattr(self, stat) + increase > 84:
-                print("Maximum height reached")
-                return
-            
-            if stat != "height" and getattr(self, stat) + increase > 100:
-                print("Maximum rating reached")
-                return
-            
-            setattr(self, stat, getattr(self, stat) + increase)
-            self.money -= price
-            print(f"Upgraded {stat}")
-            print(f"Money left: ${self.money}")
-        else:
-            print("Not enough money")
-            print(f"You currently have ${self.money}. You need ${price - self.money} more")
+        setattr(self, stat, getattr(self, stat) + increase)
+        self.money -= price
+
+        print(f"Upgrade successful! {stat} increased by {increase}.")
+        print(f"Money left: ${self.money}")
+
+        return True
+  
 
     def earn_money(self, amount):
         self.money += amount
