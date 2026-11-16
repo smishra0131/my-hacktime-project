@@ -19,6 +19,8 @@ class BasketballGame:
         self.attempted_shots = 0
         self.player_attempts = 0
         self.opponent_attempts = 0
+        self.player_turnovers = 0
+        self.opponent_turnovers = 0
 
     def start_game(self):
         print(f"Game starting between {self.player.name} and {self.opponent.name}")
@@ -36,6 +38,7 @@ class BasketballGame:
         
 
     def simulate_possession(self):
+        self.possessions += 1
         if self.current_possession == "player":
             shooter = self.player
             defender = self.opponent
@@ -44,18 +47,25 @@ class BasketballGame:
             defender = self.player
         self.calculate_shot(shooter, defender)
 
+    def calculate_shot_chance(self, shooter, defender):
+        difference = shooter.shooting - defender.defending
+        shot_chance = 0.5 + (difference * 0.01)
+        
+        return max(0.10, min(0.90, shot_chance))
+    
     def calculate_shot(self, shooter, defender):
         self.attempted_shots += 1
         if shooter == self.player:
             self.player_attempts += 1
         else:
             self.opponent_attempts += 1
-        
+
+        shot_chance = self.calculate_shot_chance(shooter, defender)
+        shot_made = random.random() < shot_chance
         if shooter == self.player:
-            if self.player.shooting > self.opponent.defending:
-                shot_chance = (self.player.shooting - self.opponent.defending) * 0.1
+            self.stats.record_shot(shot_made)
         
-        if random.random() < shot_chance:
+        if shot_made:
             if shooter == self.player:
                 self.player_shots += 1
                 self.update_score(2, self.player)
@@ -67,9 +77,14 @@ class BasketballGame:
         else:
             self.determine_rebound(shooter, defender)
 
+    def calculate_rebound_chance(self, shooter, defender):
+        difference = defender.rebounding - shooter.rebounding
+        rebound_chance = 0.5 + (difference * 0.01)
+            
+        return max(0.10, min(0.90, rebound_chance))
 
     def determine_rebound(self, shooter, defender):
-        rebound_chance = 0.6
+        rebound_chance = self.calculate_rebound_chance(shooter, defender)
         
         if random.random() < rebound_chance:
             rebounder = defender
@@ -78,11 +93,51 @@ class BasketballGame:
             
         if rebounder == self.player:
             self.player_rebounds += 1
+            self.stats.record_rebound()
             self.current_possession = "player"
         else:
             self.opponent_rebounds += 1
             self.current_possession = "opponent"
         
+    def calculate_steal_chance(self, shooter, defender):
+        difference = defender.defending - shooter.ball_handling
+        steal_chance = 0.1 + (difference * 0.01)
+
+        return max(0.10, min(0.90, steal_chance))
+
+    def determine_steal(self, shooter, defender):
+        steal_chance = self.calculate_steal_chance(shooter, defender)
+
+        if random.random() < steal_chance:
+            if defender == self.player:
+                self.player_steals += 1
+                self.stats.record_steal()
+                self.current_possession = "player"
+            else: 
+                self.opponent_steals += 1
+                self.current_possession = "opponent"
+
+            return True
+        return False
+
+    def calculate_turnover_chance(self, shooter):
+        turnover_chance = 0.20 - (shooter.ball_handling * 0.002)
+        return max(0.02, min(0.20, turnover_chance))
+
+    def determine_turnover(self, shooter):
+        turnover_chance = self.calculate_turnover_chance(shooter)
+
+        if random.random() < turnover_chance:
+            if shooter == self.player:
+                self.player_turnovers += 1
+                self.stats.record_turnover()
+                self.current_possession = "opponent"
+            else:
+                self.opponent_turnovers += 1
+                self.current_possession = "player"
+
+            return True
+        return False
 
     def update_score(self, points, scoring_player):
         if scoring_player == self.player:
@@ -110,4 +165,12 @@ class BasketballGame:
         print(f"\n ==== Final Score ====")
         print(f"Player score: {self.player_score}")
         print(f"Opponent score: {self.opponent_score}")
+
+    def display_stats(self):
+        print(f"\n ==== Player Stats ====")
+        print(f"Player shots: {self.player_shots}")
+        print(f"Player rebounds: {self.player_rebounds}")
+        print(f"Player steals: {self.player_steals}")
+        print(f"Player turnovers: {self.player_turnovers}")
+
     
