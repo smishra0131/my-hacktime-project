@@ -35,6 +35,7 @@ class BasketballGame:
         print("Game over!")
         self.display_final_score()
         self.determine_winner()
+        self.display_stats()
         
 
     def simulate_possession(self):
@@ -45,6 +46,13 @@ class BasketballGame:
         else:
             shooter = self.opponent
             defender = self.player
+
+        if self.determine_steal(shooter, defender):
+            return
+
+        if self.determine_turnover(shooter):
+            return
+        
         self.calculate_shot(shooter, defender)
 
     def calculate_shot_chance(self, shooter, defender):
@@ -103,7 +111,7 @@ class BasketballGame:
         difference = defender.defending - shooter.ball_handling
         steal_chance = 0.1 + (difference * 0.01)
 
-        return max(0.10, min(0.90, steal_chance))
+        return max(0.02, min(0.40, steal_chance))
 
     def determine_steal(self, shooter, defender):
         steal_chance = self.calculate_steal_chance(shooter, defender)
@@ -152,15 +160,17 @@ class BasketballGame:
             print("Time's up!")
 
     def determine_winner(self):
-        print(f"Player score: {self.player_score}")
-        print(f"Opponent score: {self.opponent_score}")
         if self.player_score > self.opponent_score:
             print(f"{self.player.name} wins!")
+            result = "win"
         elif self.player_score < self.opponent_score:
             print(f"{self.opponent.name} wins!")
+            result = "loss"
         else:
             print("It's a tie!")
-
+            result = "tie"
+        self.stats.record_result(result, self.player_score, self.opponent_score)
+    
     def display_final_score(self):
         print(f"\n ==== Final Score ====")
         print(f"Player score: {self.player_score}")
@@ -168,7 +178,8 @@ class BasketballGame:
 
     def display_stats(self):
         print(f"\n ==== Player Stats ====")
-        print(f"Player shots: {self.player_shots}")
+        print(f"Player shots made: {self.player_shots}")
+        print(f"Player shots attempted: {self.player_attempts}")
         print(f"Player rebounds: {self.player_rebounds}")
         print(f"Player steals: {self.player_steals}")
         print(f"Player turnovers: {self.player_turnovers}")
