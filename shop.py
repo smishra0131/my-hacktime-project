@@ -70,6 +70,33 @@ class Shop:
             print("Purchase denied.")
             return False
 
+    def run_shop(self, player):
+        while True:
+            print(f"\n You currently have ${player.money}")
+            self.display_shop()
+            category = input("Choose from the categories (1-2) or 3 to exit: ")
 
+            if category == "1":
+                self.display_physical_characteristics(player)
+            elif category == "2":
+                self.display_skills(player)
+            elif category == "3":
+                print("Exiting shop.")
+                break
+            else:
+                print(f"Invalid choice. Please enter a number from 1-3.")
+                continue
+
+            choice = input("Choose and upgrade (1-4) or 5 to exit: ")
+            if choice == "5":
+                continue
+            
+            try:
+                upgrade = self.purchase_upgrade(choice, category)
+            except ValueError:
+                print("Invalid choice. Please enter a number from 1-4.")
+                continue
+            
+            self.confirm_purchase(upgrade, player)
 
 

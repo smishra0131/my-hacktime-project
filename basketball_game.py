@@ -173,8 +173,8 @@ class BasketballGame:
     
     def display_final_score(self):
         print(f"\n ==== Final Score ====")
-        print(f"Player score: {self.player_score}")
-        print(f"Opponent score: {self.opponent_score}")
+        print(f"{self.player.name} score: {self.player_score}")
+        print(f"{self.opponent.name} score: {self.opponent_score}")
 
     def display_stats(self):
         print(f"\n ==== Player Stats ====")

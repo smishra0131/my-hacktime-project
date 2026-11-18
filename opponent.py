@@ -2,6 +2,7 @@ import random
 class Opponent:
     """Class representing the opponent in the game."""
     def __init__(self):
+        self.name = "Ben Simmons"
         self.random_characteristics()
 
     def random_characteristics(self):
